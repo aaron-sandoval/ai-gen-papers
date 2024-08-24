@@ -1,29 +1,32 @@
+# Import necessary libraries
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def plot_GDP(data_file):
-    # Load the data from the file
-    data = pd.read_csv(data_file)
+def plot_GDP(filename):
+    # Load data from CSV file
+    data = pd.read_csv(filename)
 
-    # Create a figure and axis object
-    fig, ax = plt.subplots(figsize=(8, 6))
+    # Create line plot
+    plt.figure(figsize=(8, 6))
+    plt.plot(data['China'], label='China')
+    plt.plot(data['USA'], label='USA')
+    plt.plot(data['Russia'], label='Russia')
 
-    # Plot the data as line graphs
-    data.plot(ax=ax, linewidth=2)
+    # Set labels and title
+    plt.xlabel('Index')
+    plt.ylabel('GDP')
+    plt.title('Comparative GDP Trends')
 
-    # Set the title and axis labels
-    ax.set_title('GDP Growth Over Time', fontsize=16)
-    ax.set_xlabel('Time', fontsize=14)
-    ax.set_ylabel('GDP', fontsize=14)
+    # Add legend
+    plt.legend()
 
-    # Set the legend properties
-    ax.legend(loc='upper left', fontsize=12)
+    # Set grid and axis limits
+    plt.grid(True)
+    plt.xlim(0, len(data) - 1)
+    plt.ylim(0, max(data.max()))
 
-    # Set the grid lines
-    ax.grid(linestyle='--', alpha=0.5)
-
-    # Adjust the spacing between subplots
-    plt.subplots_adjust(top=0.9, bottom=0.1, left=0.1, right=0.9, hspace=0.5, wspace=0.5)
+    # Save the plot
+    plt.savefig('GDP_plot.png', dpi=300, bbox_inches='tight')
 
     # Show the plot
     plt.show()
