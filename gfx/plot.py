@@ -3,42 +3,46 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def plot_GDP(filename):
-    # Load data from CSV file
+def plot_GDP_growth(filename):
+    # Load the data from the CSV file
     data = pd.read_csv(filename)
-
-    # Set up the figure and axes
-    plt.figure(figsize=(10, 6))
-    ax = plt.axes()
-
-    # Set the color scheme
-    sns.set_palette("Paired")
-
-    # Plot the data
-    plt.plot(data['China'], label='China')
-    plt.plot(data['USA'], label='USA')
-    plt.plot(data['Russia'], label='Russia')
-
-    # Set the title and axis labels
-    plt.title('GDP Trends from 1980 to 2020 (in USD)')
-    plt.xlabel('Year')
-    plt.ylabel('GDP (in USD)')
-
-    # Set the tick labels
-    ax.set_xticks(range(len(data)))
-    ax.set_xticklabels(range(1980, 2021, 5))
-    ax.ticklabel_format(style='plain', axis='y')
-
+    
+    # Set the style to seaborn-v0_8 for an academic look
+    plt.style.use('seaborn-v0_8')
+    
+    # Create a new figure with 5 inches width and appropriate height
+    fig, ax = plt.subplots(figsize=(5, 4))
+    
+    # Plot the data for each country
+    ax.plot(data['Year'], data['China'], label='China', linewidth=1.5)
+    ax.plot(data['Year'], data['USA'], label='USA', linewidth=1.5)
+    ax.plot(data['Year'], data['Russia'], label='Russia', linewidth=1.5)
+    
+    # Set the title and labels
+    ax.set_title('GDP Growth (1980-2020)', fontsize=10, fontweight='bold')
+    ax.set_xlabel('Year', fontsize=8)
+    ax.set_ylabel('GDP (Billion USD)', fontsize=8)
+    
+    # Customize the tick labels
+    ax.set_xticks(range(1980, 2021, 10))
+    ax.set_xticklabels(range(1980, 2021, 10), rotation=45, ha='right')
+    ax.tick_params(axis='both', which='major', labelsize=8)
+    
     # Add a legend
-    plt.legend()
+    ax.legend(fontsize=8, loc='upper left')
+    
+    # Add a grid for better readability
+    ax.grid(True, linestyle='--', alpha=0.7)
+    
+    # Adjust layout to prevent cutoff
+    plt.tight_layout()
+    
+    # Save the plot as a PNG file
+    output_filename = filename.replace('.csv', '.png')
+    plt.savefig(output_filename, dpi=300, bbox_inches='tight')
+    
+    # Close the plot to free up memory
+    plt.close()
 
-    # Set the grid and axis limits
-    plt.grid(True)
-    plt.xlim(0, len(data) - 1)
-    plt.ylim(0, max(data.max()))
-
-    # Save the plot
-    plt.savefig('GDP_plot.png', dpi=300, bbox_inches='tight')
-
-    # Show the plot
-    plt.show()
+# Note: This function assumes that the CSV file has the correct format
+# with columns: Year, China, USA, Russia
