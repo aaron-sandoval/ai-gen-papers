@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "gfx"
+version = "0.1.0"
+description = "Generate graphics for use in documents"
+authors = ["aaron-sandoval <32021231+aaron-sandoval@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+anthropic = "^0.34.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
