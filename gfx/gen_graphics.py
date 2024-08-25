@@ -31,7 +31,7 @@ def gen_data_and_plot(
         client: Anthropic | None = None, 
         model: Literal["claude-3-haiku-20240307", "claude-3-5-sonnet-20240620"] = "claude-3-haiku-20240307",
         # plot_file: str | Path | None = None,
-        quiet: bool = False
+        quiet: bool = True
         ) -> None:
     """
     Generates a csv data file, plotting function, and png plot of the data according to NL prompts.
@@ -96,9 +96,9 @@ def gen_data_and_plot(
     # data_file = Path("gfx")/"data"/(dataset_name+".csv")
     data_file = gen_data(data_prompt)
     gen_plotting_code(plot_prompt)
-    import_module(f"plot_funcs.plot_{dataset_name}")
-    reload(sys.modules[f"plot_funcs.plot_{dataset_name}"])
-    gen_plot(getattr(sys.modules[f"plot_funcs.plot_{dataset_name}"], f"plot_{dataset_name}"), str(data_file))
+    import_module(f"gfx.plot_funcs.plot_{dataset_name}")
+    reload(sys.modules[f"gfx.plot_funcs.plot_{dataset_name}"])
+    gen_plot(getattr(sys.modules[f"gfx.plot_funcs.plot_{dataset_name}"], f"plot_{dataset_name}"), str(data_file))
 
 
 def gen_image(
@@ -115,7 +115,7 @@ def gen_image(
     # Parameters:
     - `name`: File name of the output image without file extension. All images are saved in gfx/data.
     """
-    def send_generation_request(host, params):
+    def send_generation_request(host, params):    
         headers = {
             "Accept": "image/*",
             "Authorization": f"Bearer {getenv_or_except('STABILITY_API_KEY')}"
@@ -154,7 +154,8 @@ def gen_image(
         "seed" : seed,
         "output_format": output_format
     }
-
+    
+    generated = Path("gfx")/"data"/f"{name}.{output_format}"
     response = send_generation_request(
         host,
         params
@@ -173,7 +174,6 @@ def gen_image(
     PILimage: Image = Image.open(io.BytesIO(output_image))
 
     # Save result
-    generated = Path("gfx")/"data"/f"{name}.{output_format}"
     PILimage.save(generated, "PNG")
     print(f"Saved image {generated}")
 
