@@ -182,17 +182,17 @@ def gen_image(
 def extract_graphics_prompts(tex_file: str | Path) -> tuple[list[tuple[str, str]], list[str]]:
     with open(tex_file, "r") as f:
         tex = f.read()
-    plot_pattern = r'\[IMAGE PLACEHOLDER [0-9]+ \(chart\)([^\]]*)\]'
+    plot_pattern = r'\[IMAGE PLACEHOLDER ([0-9]+) \(chart\)([^\]]*)\]'
     plot_matches = re.findall(plot_pattern, tex)
     chart_prompts = []
     if len(plot_matches) > 0:
-        for m in plot_matches:
+        for serial, m in plot_matches:
             re_matches = re.search(r'data_prompt: (.*)\nplot_prompt: (.*)', m)
             data_prompt, plot_prompt = re_matches.group(1), re_matches.group(2)
-            chart_prompts.append((data_prompt, plot_prompt))
-    image_pattern = r'\[IMAGE PLACEHOLDER [0-9]+ \(picture\)([^\]]*)\]'
+            chart_prompts.append((serial, data_prompt, plot_prompt))
+    image_pattern = r'\[IMAGE PLACEHOLDER ([0-9]+) \(picture\)([^\]]*)\]'
     image_matches = re.findall(image_pattern, tex)
-    image_prompts = [raw.strip().replace("\n", " ") for raw in image_matches]
+    image_prompts = [(serial, raw.strip().replace("\n", " ")) for serial, raw in image_matches]
     return chart_prompts, image_prompts
 
 def gen_graphics_from_tex(
@@ -200,8 +200,8 @@ def gen_graphics_from_tex(
     plot_llm: Literal["claude-3-haiku-20240307", "claude-3-5-sonnet-20240620"] = "claude-3-5-sonnet-20240620"
 ) -> list[Path]:
     """ Generates and saves plots and images"""
-    plot_placeholders, image_placeholders = extract_graphics_prompts(tex_file)
-    for p in plot_placeholders:
+    plot_prompts, image_prompts = extract_graphics_prompts(tex_file)
+    for data_prompt, plot_prompt in plot_prompts:
         name = f"plot_{p.split(':')[0].strip()}"
         data_prompt = ...
         plot_prompt = ...
