@@ -24,6 +24,9 @@ def gen_data_and_plot(
         # plot_file: str | Path | None = None,
         quiet: bool = False
         ) -> None:
+    """
+    Generates a csv data file, plotting function, and png plot of the data according to NL prompts.
+    """
     def gen_data(prompt: str, context: list[dict: str, str] | None = None) -> Path:
         prompts.append(
         f"Generate data in CSV format. "
@@ -49,7 +52,7 @@ def gen_data_and_plot(
         plot_func = "plot_"+dataset_name
         prompts.append(
             f"Write a python function called `{plot_func}` to plot the data you just generated per the following description. "
-            f"{prompt}. "
+            f"{prompt} "
             f"{SYSTEM_PROMPT if use_system_prompt else ''}")
         gen_data = client.messages.create(
             model=model,
@@ -81,13 +84,15 @@ def gen_data_and_plot(
     import_module(f"plot_funcs.plot_{dataset_name}")
     reload(sys.modules[f"plot_funcs.plot_{dataset_name}"])
     gen_plot(getattr(sys.modules[f"plot_funcs.plot_{dataset_name}"], f"plot_{dataset_name}"), str(data_file))
-    
-gen_data_and_plot(
-    "GNP_growth",
-    "The first column of the data is the year. "
-    "The data has 3 columns labeled 'China', 'USA', and 'Russia' tracking GDP in USD from 1980 until 2020. "
-    "The values in each column are generally increasing in a jagged fashion, but 'China' is increasing most quickly. "
-    "The values should be of a realistic magnitude for the countries labeled.",
-    "Simple line chart.",
-    model="claude-3-haiku-20240307",
-)
+
+if __name__ == "__main__":
+    gen_data_and_plot(
+        "Heights",
+        """The data shows the heights in inches of 30 children aged 12 years old. 
+        The data has 2 columns labeled 'Height' and 'Gender'.  
+        The values should show realistic heights for American children.""",
+        """Histogram with stacked bars. One set of bars is pink for female, and the other set is baby blue for male. 
+        The legend labels the colors. """,
+        model="claude-3-5-sonnet-20240620",
+        # model="claude-3-haiku-20240307",
+    )
