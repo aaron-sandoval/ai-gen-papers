@@ -24,7 +24,7 @@ Welcome to our AI-powered platform, where cutting-edge technology meets scientif
 """)
 
 # Add an image to the page
-st.image(Path("Front-End")/"writing.jpg", caption="research papers", use_column_width=True)
+st.image(str(Path("Front-End")/"writing.jpg"), caption="research papers", use_column_width=True)
 
 # Add an input button
 user_input = st.text_input("Enter your question:")
