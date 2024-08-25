@@ -1,4 +1,5 @@
 import streamlit as st
+import base64
 from PIL import Image
 from pathlib import Path
 
@@ -54,8 +55,6 @@ st.markdown(
 # streamlit_app.py
 
 import hmac
-import streamlit as st
-
 
 def check_password():
     """Returns `True` if the user had the correct password."""
@@ -98,3 +97,6 @@ def displayPDF(file):
 
     # Displaying File
     st.markdown(pdf_display, unsafe_allow_html=True)
+
+# Display the PDF on the landing page
+displayPDF("Front-End/pdf-test.pdf")
