@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from gfx.gen_graphics import gen_image, gen_data_and_plot, extract_graphics_prompts, gen_graphics_from_tex
+from gfx.gen_graphics import gen_graphics_from_tex
+
 
 gfx_files = gen_graphics_from_tex(Path("tex")/"generated_paper_with_ref7.tex")
 
