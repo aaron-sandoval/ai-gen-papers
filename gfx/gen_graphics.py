@@ -4,10 +4,19 @@ import warnings
 import itertools
 import os
 import sys
+import io
 from pathlib import Path
+from PIL import Image
+import requests
 from importlib import reload, import_module
 
 # import plot_funcs
+
+def getenv_or_except(key: str) -> str:
+    val = os.getenv(key)
+    if val is None:
+        raise KeyError(f"'{key}' not found in OS environment variables.")
+    return val
 
 
 def compile_msg_history(prompts: list[str], responses: list[str]) -> list[dict[str, str]]:
@@ -74,7 +83,7 @@ def gen_data_and_plot(
 
     if client is None:
         client = Anthropic(
-            api_key=os.getenv("ANTHROPIC_API_KEY")
+            api_key=getenv_or_except("ANTHROPIC_API_KEY")
         )
     plot_file = Path("gfx")/"plot_funcs"/("plot_"+dataset_name+".py")
     prompts, responses = [], []
@@ -84,6 +93,77 @@ def gen_data_and_plot(
     import_module(f"plot_funcs.plot_{dataset_name}")
     reload(sys.modules[f"plot_funcs.plot_{dataset_name}"])
     gen_plot(getattr(sys.modules[f"plot_funcs.plot_{dataset_name}"], f"plot_{dataset_name}"), str(data_file))
+
+
+def gen_image(
+        name: str,
+        prompt: str,
+        negative_prompt: str = "",
+        aspect_ratio: Literal["21:9", "16:9", "3:2", "5:4", "1:1", "4:5", "2:3", "9:16", "9:21"] = "1:1",
+        seed: int = 0,
+        output_format: Literal["webp", "jpeg", "png"] = "png"
+        ):
+    def send_generation_request(host, params):
+        headers = {
+            "Accept": "image/*",
+            "Authorization": f"Bearer {getenv_or_except('STABILITY_API_KEY')}"
+        }
+
+        # Encode parameters
+        files = {}
+        image = params.pop("image", None)
+        mask = params.pop("mask", None)
+        if image is not None and image != '':
+            files["image"] = open(image, 'rb')
+        if mask is not None and mask != '':
+            files["mask"] = open(mask, 'rb')
+        if len(files)==0:
+            files["none"] = ''
+
+        # Send request
+        print(f"Sending REST request to {host}...")
+        response = requests.post(
+            host,
+            headers=headers,
+            files=files,
+            data=params
+        )
+        if not response.ok:
+            raise Exception(f"HTTP {response.status_code}: {response.text}")
+
+        return response
+
+    host = f"https://api.stability.ai/v2beta/stable-image/generate/core"
+
+    params = {
+        "prompt" : prompt,
+        "negative_prompt" : negative_prompt,
+        "aspect_ratio" : aspect_ratio,
+        "seed" : seed,
+        "output_format": output_format
+    }
+
+    response = send_generation_request(
+        host,
+        params
+    )
+
+    # Decode response
+    output_image = response.content
+    finish_reason = response.headers.get("finish-reason")
+    seed = response.headers.get("seed")
+
+    # Check for NSFW classification
+    if finish_reason == 'CONTENT_FILTERED':
+        raise Warning("Generation failed NSFW classifier")
+
+    # Display result
+    PILimage: Image = Image.open(io.BytesIO(output_image))
+
+    # Save result
+    generated = Path("gfx")/"data"/f"IMG_{name}.{output_format}"
+    PILimage.save(generated, "PNG")
+    print(f"Saved image {generated}")
 
 if __name__ == "__main__":
     gen_data_and_plot(
