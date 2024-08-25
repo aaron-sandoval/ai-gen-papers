@@ -1,5 +1,6 @@
 import streamlit as st
 from PIL import Image
+from pathlib import Path
 
 # Set the page configuration
 st.set_page_config(page_title="AI Scientific Paper Generator", 
@@ -23,7 +24,7 @@ Welcome to our AI-powered platform, where cutting-edge technology meets scientif
 """)
 
 # Add an image to the page
-st.image("writing.jpg", caption="research papers", use_column_width=True)
+st.image(Path("Front-End")/"writing.jpg", caption="research papers", use_column_width=True)
 
 # Add an input button
 user_input = st.text_input("Enter your question:")
