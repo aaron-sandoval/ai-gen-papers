@@ -35,6 +35,12 @@ def gen_data_and_plot(
         ) -> None:
     """
     Generates a csv data file, plotting function, and png plot of the data according to NL prompts.
+
+    # Parameters:
+    - `dataset_name`: Identifier for this output. Data and plot image will be saved to `{dataset_name}.csv` and `{dataset_name}.png`.
+    - `data_prompt`: LLM prompt for generating the data file. See implementation for what's already included in the system prompt.
+    - `plot_prompt`: LLM prompt for generating the plotting code. See implementation for what's already included in the system prompt.
+    - `quiet`: If False, model outputs will print to stdout as they are generated in addition to being saved to files.
     """
     def gen_data(prompt: str, context: list[dict: str, str] | None = None) -> Path:
         prompts.append(
@@ -103,6 +109,12 @@ def gen_image(
         seed: int = 0,
         output_format: Literal["webp", "jpeg", "png"] = "png"
         ):
+    """
+    Generate and save an image using the Stable Diffusion API.
+
+    # Parameters:
+    - `name`: File name where the output image is to be saved
+    """
     def send_generation_request(host, params):
         headers = {
             "Accept": "image/*",
@@ -161,17 +173,17 @@ def gen_image(
     PILimage: Image = Image.open(io.BytesIO(output_image))
 
     # Save result
-    generated = Path("gfx")/"data"/f"IMG_{name}.{output_format}"
+    generated = Path("gfx")/"data"/f"{name}.{output_format}"
     PILimage.save(generated, "PNG")
     print(f"Saved image {generated}")
 
 if __name__ == "__main__":
     gen_data_and_plot(
         "Heights",
-        """The data shows the heights in inches of 30 children aged 12 years old. 
+        data_prompt="""The data shows the heights in inches of 30 children aged 12 years old. 
         The data has 2 columns labeled 'Height' and 'Gender'.  
         The values should show realistic heights for American children.""",
-        """Histogram with stacked bars. One set of bars is pink for female, and the other set is baby blue for male. 
+        plot_prompt="""Histogram with stacked bars. One set of bars is pink for female, and the other set is baby blue for male. 
         The legend labels the colors. """,
         model="claude-3-5-sonnet-20240620",
         # model="claude-3-haiku-20240307",
