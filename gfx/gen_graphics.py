@@ -33,7 +33,7 @@ def gen_data_and_plot(
         model: Literal["claude-3-haiku-20240307", "claude-3-5-sonnet-20240620"] = "claude-3-haiku-20240307",
         # plot_file: str | Path | None = None,
         quiet: bool = True
-        ) -> None:
+        ) -> Path:
     """
     Generates a csv data file, plotting function, and png plot of the data according to NL prompts.
 
@@ -53,6 +53,7 @@ def gen_data_and_plot(
         gen_data = client.messages.create(
             model=model,
             max_tokens=1000,
+            temperature=0.0,
             messages=context if context is not None else compile_msg_history(prompts, responses)
         )
         if not quiet:
@@ -64,7 +65,7 @@ def gen_data_and_plot(
         return data_file
 
     def gen_plotting_code(prompt: str, context: list[dict: str, str] | None = None, use_system_prompt: bool = True):
-        SYSTEM_PROMPT = "Use the matplotlib library with the seaborn-v0_8 style. The figure should be 5 inches wide with font size no smaller than 8. You first need to load the data from the `filename` argument. The graph should appear appropriate for an academic paper. Include a title, legend, axis labels, and tick labels. Save the plot as a png with the same name as the filename argument. Output only commented Python code without any ``` backticks surrounding it."
+        SYSTEM_PROMPT = "Include the line `from gfx.plot_funcs.import_common import *` at the top of the file outside the function. The first line in the function should load the data from the `filename` argument. Use the matplotlib library to construct the plot. Do not use seaborn. The figure should be 6 inches wide with font size no smaller than 8. The plot should appear appropriate for an academic paper. Include a title, legend, axis labels, and tick labels. Save the plot as a png with the same name as the `filename` argument. Output only commented Python code without any ``` backticks surrounding it."
         plot_func = "plot_"+dataset_name
         prompts.append(
             f"Write a python function called `{plot_func}` to plot the data you just generated per the following description. "
@@ -73,6 +74,7 @@ def gen_data_and_plot(
         gen_data = client.messages.create(
             model=model,
             max_tokens=1000,
+            temperature=0.0,
             messages=context if context is not None else compile_msg_history(prompts, responses)
         )
         if gen_data.content[0].text[:9] == "```python":
@@ -85,8 +87,9 @@ def gen_data_and_plot(
         with open(plot_file, "w") as f:
             f.write(responses[-1])
 
-    def gen_plot(plot_func: callable, data_file: Path | str, *plot_args, **plot_kwargs):
+    def gen_plot(plot_func: callable, data_file: Path | str, *plot_args, **plot_kwargs) -> Path:
         plot_func(data_file, *plot_args, **plot_kwargs)
+        return Path(str(data_file).split(".")[0]+".png")
 
     if client is None:
         client = Anthropic(
@@ -99,7 +102,7 @@ def gen_data_and_plot(
     gen_plotting_code(plot_prompt)
     import_module(f"gfx.plot_funcs.plot_{dataset_name}")
     reload(sys.modules[f"gfx.plot_funcs.plot_{dataset_name}"])
-    gen_plot(getattr(sys.modules[f"gfx.plot_funcs.plot_{dataset_name}"], f"plot_{dataset_name}"), str(data_file))
+    return gen_plot(getattr(sys.modules[f"gfx.plot_funcs.plot_{dataset_name}"], f"plot_{dataset_name}"), str(data_file))
 
 
 def gen_image(
@@ -179,13 +182,40 @@ def gen_image(
     print(f"Saved image {generated}")
 
 
-def extract_image_prompts(tex_file: str | Path):
+def extract_graphics_prompts(tex_file: str | Path) -> tuple[list[tuple[int, str, str]], list[tuple[int, str]]]:
     with open(tex_file, "r") as f:
         tex = f.read()
-    image_pattern = r'\[IMAGE PLACEHOLDER([^\]]*)\]'
-    matches = re.findall(image_pattern, tex)
-    for m in matches:
-        ...
+    plot_pattern = r'\[IMAGE PLACEHOLDER ([0-9]+) \(chart\)([^\]]*)\]'
+    plot_matches = re.findall(plot_pattern, tex)
+    chart_prompts = []
+    if len(plot_matches) > 0:
+        for serial, m in plot_matches:
+            re_matches = re.search(r'data_prompt: (.*)\nplot_prompt: (.*)', m)
+            data_prompt, plot_prompt = re_matches.group(1), re_matches.group(2)
+            chart_prompts.append((serial, data_prompt, plot_prompt))
+    image_pattern = r'\[IMAGE PLACEHOLDER ([0-9]+) \(picture\)([^\]]*)\]'
+    image_matches = re.findall(image_pattern, tex)
+    image_prompts = [(serial, raw.strip().replace("\n", " ")) for serial, raw in image_matches]
+    return chart_prompts, image_prompts
+
+def gen_graphics_from_tex(
+    tex_file: str | Path, 
+    plot_llm: Literal["claude-3-haiku-20240307", "claude-3-5-sonnet-20240620"] = "claude-3-5-sonnet-20240620"
+) -> list[Path]:
+    """ Generates and saves plots and images"""
+    plot_prompts, image_prompts = extract_graphics_prompts(tex_file)
+    gfx_files = {}
+    if len(plot_prompts) > 0:
+        client = Anthropic(
+            api_key=getenv_or_except("ANTHROPIC_API_KEY")
+        )
+        for serial, data_prompt, plot_prompt in plot_prompts:
+            name = f"IMG_{serial}"
+            gfx_files[serial] = gen_data_and_plot(name, data_prompt, plot_prompt, client=client)
+    for serial, image_prompt in image_prompts:
+        name = f"IMG_{serial}"
+        gfx_files[serial] = gen_image(name, image_prompt)
+    return gfx_files
 
 
 if __name__ == "__main__":

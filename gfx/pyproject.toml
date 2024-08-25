@@ -13,7 +13,7 @@ anthropic = "^0.34.1"
 ipykernel = "^6.22.0"
 jupyter =  "^1.0.0"
 matplotlib = "^3.9.2"
-seaborn = "^0.13.2"
+scipy = "^1.14.1"
 
 
 [build-system]
