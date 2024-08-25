@@ -179,18 +179,21 @@ def gen_image(
     print(f"Saved image {generated}")
 
 
-def extract_graphics_prompts(tex_file: str | Path) -> tuple[list[str], list[str]]:
+def extract_graphics_prompts(tex_file: str | Path) -> tuple[list[tuple[str, str]], list[str]]:
     with open(tex_file, "r") as f:
         tex = f.read()
     plot_pattern = r'\[IMAGE PLACEHOLDER [0-9]+ \(chart\)([^\]]*)\]'
-    plot_matches = re.findall(image_pattern, tex)
-    for m in plot_matches:
-        ...
+    plot_matches = re.findall(plot_pattern, tex)
+    chart_prompts = []
+    if len(plot_matches) > 0:
+        for m in plot_matches:
+            re_matches = re.search(r'data_prompt: (.*)\nplot_prompt: (.*)', m)
+            data_prompt, plot_prompt = re_matches.group(1), re_matches.group(2)
+            chart_prompts.append((data_prompt, plot_prompt))
     image_pattern = r'\[IMAGE PLACEHOLDER [0-9]+ \(picture\)([^\]]*)\]'
     image_matches = re.findall(image_pattern, tex)
-    for m in image_matches:
-        ...
-        return plot_matches, image_matches
+    image_prompts = [raw.strip().replace("\n", " ") for raw in image_matches]
+    return chart_prompts, image_prompts
 
 def gen_graphics_from_tex(
     tex_file: str | Path, 
