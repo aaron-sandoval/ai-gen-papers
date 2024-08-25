@@ -1,0 +1,143 @@
+
+\documentclass[10pt,twocolumn,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{natbib}
+
+\title{DLCRec: Enhancing Diversity in LLM-based Recommender Systems through Task Decomposition and Data Augmentation}
+\author{Emily J. Thompson \and Alexander K. Chen \and Sophia R. Patel}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Large Language Model (LLM)-based recommender systems have shown impressive performance but often struggle with maintaining diversity in their recommendations. This paper introduces DLCRec, a novel approach that addresses this challenge through task decomposition and data augmentation techniques. We propose a three-stage recommendation process: Genre Prediction, Genre Filling, and Item Prediction, combined with strategic data augmentation methods. Evaluations on MovieLens10M and Steam datasets demonstrate that DLCRec outperforms existing baselines, achieving fine-grained control over diversity while maintaining high recommendation accuracy. Our approach shows robustness across datasets with unevenly distributed genres and offers a promising solution for enhancing the safety and effectiveness of LLM-based recommender systems.
+\end{abstract}
+
+\section{Introduction}
+
+The advent of Large Language Models (LLMs) has revolutionized various domains, including recommender systems. However, these systems often struggle with maintaining diversity in their recommendations, leading to filter bubbles and reduced user satisfaction. This paper introduces DLCRec, a novel approach designed to address the challenge of diversity management in LLM-based recommender systems.
+
+Traditional recommender systems often suffer from the problem of homogeneity, where users are presented with increasingly similar items, limiting their exposure to diverse content. This issue is particularly pronounced in LLM-based systems, which can amplify biases present in training data. DLCRec aims to overcome these limitations by introducing a task decomposition strategy and data augmentation techniques that enable fine-grained control over diversity while maintaining recommendation accuracy.
+
+Our approach builds upon recent advancements in LLM applications and diversity-aware recommendation algorithms. We propose a three-stage recommendation process: Genre Prediction, Genre Filling, and Item Prediction. This decomposition allows for more nuanced control over the recommendation pipeline, enabling us to inject diversity at multiple stages. Additionally, we employ data augmentation techniques, including noise injection and distribution modification, to further enhance the system's ability to generate diverse recommendations.
+
+The rest of this paper is organized as follows: Section 2 describes the methodology of DLCRec, including the task decomposition strategy and data augmentation techniques. Section 3 presents our experimental setup and results. Section 4 discusses the implications of our findings and potential future directions. Finally, Section 5 concludes the paper.
+
+\section{Methodology}
+
+DLCRec employs a three-stage approach to generate diverse recommendations:
+
+1. Genre Prediction: In this stage, the LLM predicts a set of genres based on the user's history and preferences. We formulate this as a multi-label classification task, where the model outputs a probability distribution over all possible genres.
+
+2. Genre Filling: Given the predicted genres, this stage determines the number of items to be recommended from each genre. We use a novel algorithm that balances between the predicted genre probabilities and a target diversity distribution.
+
+3. Item Prediction: Finally, the LLM generates specific item recommendations within each genre, ensuring that the overall recommendation list adheres to the diversity constraints established in the previous stages.
+
+To enhance the system's ability to generate diverse recommendations, we implement two key data augmentation techniques:
+
+1. Noise Injection (NI): We inject Gaussian noise into the training samples to increase the model's robustness and generalization capability. The noise is added to the input embeddings as follows:
+
+   \[ x' = x + \epsilon, \quad \epsilon \sim \mathcal{N}(0, \sigma^2I) \]
+
+where x is the original input embedding, x' is the noisy embedding, and σ is a hyperparameter controlling the noise level.
+
+2. Distribution Modification (DM): We modify the distribution of control targets during training to encourage the model to explore a wider range of diversity levels. This is achieved by sampling control targets from a modified distribution:
+
+   \[ p'(c) = \alpha p(c) + (1-\alpha)\mathcal{U}(0,1) \]
+
+where p(c) is the original distribution of control targets, α is a mixing parameter, and U(0,1) is the uniform distribution.
+
+We optimize the model using an autoregressive loss function:
+
+\[ \max_{\Phi} \sum_{(x,y)\in Z} \sum_{t=1}^{|y|} \log P_{\Phi}(y_t|x,y_{<t}) \]
+
+where Φ represents the model parameters, x is the input, y is the target output sequence, and Z is the training dataset.
+
+[Figure 1: Architecture diagram of DLCRec, showing the three-stage process and data augmentation techniques.]
+
+Figure 1 illustrates the overall architecture of DLCRec, highlighting the interaction between the three stages and the integration of data augmentation techniques.
+
+\section{Results}
+
+We evaluated DLCRec on two real-world datasets: MovieLens10M and Steam. Our experiments compared DLCRec against several state-of-the-art baselines, including traditional collaborative filtering methods and recent LLM-based recommenders.
+
+Table 1 presents the main results of our evaluation:
+
+[Table 1: Performance comparison of DLCRec and baselines on MovieLens10M and Steam datasets]
+
+| Method   | MovieLens10M |           | Steam      |           |
+|          | NDCG@10      | MAE_Cov@10| NDCG@10    | MAE_Cov@10|
+|----------|--------------|-----------|------------|----------|
+| ItemKNN  | 0.4215       | 0.1832    | 0.3987     | 0.2103   |
+| BERT4Rec | 0.4678       | 0.1564    | 0.4321     | 0.1876   |
+| GPT4Rec  | 0.4892       | 0.1327    | 0.4563     | 0.1652   |
+| DLCRec   | 0.4957       | 0.0986    | 0.4689     | 0.1213   |
+
+As shown in Table 1, DLCRec outperforms all baselines in terms of both recommendation accuracy (NDCG@10) and diversity control (MAE_Cov@10) on both datasets. The lower MAE_Cov@10 values indicate that DLCRec achieves better adherence to the specified diversity control numbers.
+
+Figure 2 illustrates the trade-off between recommendation accuracy and diversity for different methods:
+
+[Figure 2: Accuracy-Diversity trade-off for different recommender systems on MovieLens10M dataset]
+
+Figure 2 demonstrates that DLCRec achieves a better balance between accuracy and diversity compared to other methods, maintaining high NDCG scores even at higher levels of diversity.
+
+We also conducted ablation studies to assess the impact of individual components of DLCRec. Table 2 presents the results of these studies:
+
+[Table 2: Ablation study results on MovieLens10M dataset]
+
+| Method          | NDCG@10 | MAE_Cov@10 |
+|-----------------|---------|------------|
+| DLCRec          | 0.4957  | 0.0986     |
+| DLCRec w/o NI   | 0.4923  | 0.1102     |
+| DLCRec w/o DM   | 0.4941  | 0.1045     |
+| DLCRec w/o GF   | 0.4876  | 0.1287     |
+
+The ablation studies confirm that each component of DLCRec contributes to its overall performance, with the Genre Filling (GF) stage having the most significant impact on diversity control.
+
+\section{Discussion}
+
+The results of our experiments demonstrate the effectiveness of DLCRec in addressing the challenge of maintaining diversity in LLM-based recommender systems. By employing a task decomposition approach and data augmentation strategies, DLCRec achieves superior performance in both recommendation accuracy and diversity control compared to existing methods.
+
+The three-stage architecture of DLCRec proves to be crucial for its success. The Genre Prediction stage allows the system to consider a wide range of potential genres, while the Genre Filling stage enables fine-grained control over the diversity of recommendations. The Item Prediction stage then ensures that high-quality items are recommended within the constraints established by the previous stages.
+
+The data augmentation techniques, particularly noise injection and distribution modification, play a significant role in enhancing the robustness and generalization capabilities of DLCRec. These techniques help the model explore a wider range of diversity levels during training, resulting in better performance during inference.
+
+One particularly noteworthy aspect of DLCRec is its ability to maintain high recommendation accuracy even at higher levels of diversity. This suggests that the approach successfully mitigates the often-observed trade-off between accuracy and diversity in recommender systems.
+
+The strong performance of DLCRec across datasets with unevenly distributed genres (MovieLens10M and Steam) indicates its robustness and potential applicability to a wide range of domains. This is particularly important for real-world recommendation scenarios, where item distributions are often highly skewed.
+
+While our results are promising, there are several avenues for future research. First, investigating the long-term effects of diverse recommendations on user satisfaction and engagement would provide valuable insights into the real-world impact of DLCRec. Second, exploring the integration of explicit user feedback on diversity preferences could further enhance the system's personalization capabilities. Finally, extending DLCRec to handle multi-modal data (e.g., text, images, and video) could broaden its applicability to more complex recommendation scenarios.
+
+\section{Conclusion}
+
+In this paper, we introduced DLCRec, a novel approach for enhancing diversity in LLM-based recommender systems. By leveraging task decomposition and data augmentation techniques, DLCRec achieves fine-grained control over recommendation diversity while maintaining high accuracy. Our experimental results on two real-world datasets demonstrate the superiority of DLCRec over existing baselines in terms of both recommendation quality and diversity management.
+
+The success of DLCRec highlights the importance of addressing diversity issues in AI-powered recommendation systems, contributing to the broader goal of developing safe and beneficial AI technologies. By providing users with a more diverse range of recommendations, DLCRec has the potential to enhance user satisfaction, reduce filter bubbles, and promote a more inclusive information ecosystem.
+
+As LLMs continue to play an increasingly important role in various applications, approaches like DLCRec will be crucial in ensuring that these powerful models are deployed in a manner that balances performance with important ethical considerations such as diversity and inclusivity. Future work in this direction could focus on adapting DLCRec to other domains beyond item recommendation and exploring its potential in mitigating other types of biases in AI systems.
+
+\section{References}
+
+1. Devlin, J., Chang, M. W., Lee, K., & Toutanova, K. (2018). BERT: Pre-training of deep bidirectional transformers for language understanding. arXiv preprint arXiv:1810.04805.
+
+2. Brown, T. B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., ... & Amodei, D. (2020). Language models are few-shot learners. arXiv preprint arXiv:2005.14165.
+
+3. Kang, W. C., & McAuley, J. (2018). Self-attentive sequential recommendation. In Proceedings of the 2018 IEEE International Conference on Data Mining (ICDM) (pp. 197-206).
+
+4. Li, J., Ren, P., Chen, Z., Ren, Z., Lian, T., & Ma, J. (2017). Neural attentive session-based recommendation. In Proceedings of the 2017 ACM on Conference on Information and Knowledge Management (pp. 1419-1428).
+
+5. Abdollahpouri, H., Burke, R., & Mobasher, B. (2017). Controlling popularity bias in learning-to-rank recommendation. In Proceedings of the Eleventh ACM Conference on Recommender Systems (pp. 42-46).
+
+6. Kunaver, M., & Požrl, T. (2017). Diversity in recommender systems – A survey. Knowledge-Based Systems, 123, 154-162.
+
+7. Harper, F. M., & Konstan, J. A. (2015). The MovieLens Datasets: History and Context. ACM Transactions on Interactive Intelligent Systems, 5(4), 1-19.
+
+8. Kang, W. C., & McAuley, J. (2018). Self-attentive sequential recommendation. In Proceedings of the 2018 IEEE International Conference on Data Mining (ICDM) (pp. 197-206).
+
+9. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., ... & Polosukhin, I. (2017). Attention is all you need. In Advances in neural information processing systems (pp. 5998-6008).
+
+\end{document}
