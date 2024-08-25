@@ -8,6 +8,7 @@ import io
 from pathlib import Path
 from PIL import Image
 import requests
+import re
 from importlib import reload, import_module
 
 # import plot_funcs
@@ -176,6 +177,16 @@ def gen_image(
     # Save result
     PILimage.save(generated, "PNG")
     print(f"Saved image {generated}")
+
+
+def extract_image_prompts(tex_file: str | Path):
+    with open(tex_file, "r") as f:
+        tex = f.read()
+    image_pattern = r'\[IMAGE PLACEHOLDER([^\]]*)\]'
+    matches = re.findall(image_pattern, tex)
+    for m in matches:
+        ...
+
 
 if __name__ == "__main__":
     gen_data_and_plot(

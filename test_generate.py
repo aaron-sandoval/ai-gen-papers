@@ -1,5 +1,6 @@
-# import ..gfx
-from gfx.gen_graphics import gen_image, gen_data_and_plot
+from pathlib import Path
+
+from gfx.gen_graphics import gen_image, gen_data_and_plot, extract_image_prompts
 
 # gen_image(
 #     "melting",
@@ -7,6 +8,8 @@ from gfx.gen_graphics import gen_image, gen_data_and_plot
 #     aspect_ratio="16:9",
 #     output_format="png"
 # )
+
+extract_image_prompts(Path("tex")/"generated_paper1.tex")
 
 gen_data_and_plot(
     "GDP_growth",
