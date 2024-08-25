@@ -113,7 +113,7 @@ def gen_image(
     Generate and save an image using the Stable Diffusion API.
 
     # Parameters:
-    - `name`: File name where the output image is to be saved
+    - `name`: File name of the output image without file extension. All images are saved in gfx/data.
     """
     def send_generation_request(host, params):
         headers = {
