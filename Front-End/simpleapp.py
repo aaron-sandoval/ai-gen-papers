@@ -22,7 +22,7 @@ st.write("""
 Welcome to our AI-powered platform, where cutting-edge technology meets scientific research to automatically generate comprehensive and insightful academic papers.
 """)
 
-# Add an image
+# Add an image to the page
 st.image("writing.jpg", caption="research papers", use_column_width=True)
 
 # Add an input button
