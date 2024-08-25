@@ -2,12 +2,12 @@ from pathlib import Path
 
 from gfx.gen_graphics import gen_image, gen_data_and_plot, extract_image_prompts
 
-# gen_image(
-#     "melting",
-#     "View of a tall, pristine, white ice shelf with a huge chunk of ice falling and splashing into a deep blue ocean, photorealistic",
-#     aspect_ratio="16:9",
-#     output_format="png"
-# )
+gen_image(
+    "melting",
+    "View of a tall, pristine, white ice shelf with a huge chunk of ice falling and splashing into a deep blue ocean, photorealistic",
+    aspect_ratio="16:9",
+    output_format="png"
+)
 
 extract_image_prompts(Path("tex")/"generated_paper1.tex")
 

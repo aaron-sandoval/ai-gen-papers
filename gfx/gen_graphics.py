@@ -33,7 +33,7 @@ def gen_data_and_plot(
         model: Literal["claude-3-haiku-20240307", "claude-3-5-sonnet-20240620"] = "claude-3-haiku-20240307",
         # plot_file: str | Path | None = None,
         quiet: bool = True
-        ) -> None:
+        ) -> Path:
     """
     Generates a csv data file, plotting function, and png plot of the data according to NL prompts.
 
@@ -85,8 +85,8 @@ def gen_data_and_plot(
         with open(plot_file, "w") as f:
             f.write(responses[-1])
 
-    def gen_plot(plot_func: callable, data_file: Path | str, *plot_args, **plot_kwargs):
-        plot_func(data_file, *plot_args, **plot_kwargs)
+    def gen_plot(plot_func: callable, data_file: Path | str, *plot_args, **plot_kwargs) -> Path:
+        return Path(plot_func(data_file, *plot_args, **plot_kwargs))
 
     if client is None:
         client = Anthropic(
@@ -99,7 +99,7 @@ def gen_data_and_plot(
     gen_plotting_code(plot_prompt)
     import_module(f"gfx.plot_funcs.plot_{dataset_name}")
     reload(sys.modules[f"gfx.plot_funcs.plot_{dataset_name}"])
-    gen_plot(getattr(sys.modules[f"gfx.plot_funcs.plot_{dataset_name}"], f"plot_{dataset_name}"), str(data_file))
+    return gen_plot(getattr(sys.modules[f"gfx.plot_funcs.plot_{dataset_name}"], f"plot_{dataset_name}"), str(data_file))
 
 
 def gen_image(
@@ -179,13 +179,35 @@ def gen_image(
     print(f"Saved image {generated}")
 
 
-def extract_image_prompts(tex_file: str | Path):
+def extract_graphics_prompts(tex_file: str | Path) -> tuple[list[str], list[str]]:
     with open(tex_file, "r") as f:
         tex = f.read()
-    image_pattern = r'\[IMAGE PLACEHOLDER([^\]]*)\]'
-    matches = re.findall(image_pattern, tex)
-    for m in matches:
+    plot_pattern = r'\[PLOT PLACEHOLDER([^\]]*)\]'
+    plot_matches = re.findall(image_pattern, tex)
+    for m in plot_matches:
         ...
+    image_pattern = r'\[IMAGE PLACEHOLDER([^\]]*)\]'
+    image_matches = re.findall(image_pattern, tex)
+    for m in image_matches:
+        ...
+        return plot_matches, image_matches
+
+def gen_graphics_from_tex(
+    tex_file: str | Path, 
+    plot_llm: Literal["claude-3-haiku-20240307", "claude-3-5-sonnet-20240620"] = "claude-3-5-sonnet-20240620"
+) -> list[Path]:
+    """ Generates and saves plots and images"""
+    plot_placeholders, image_placeholders = extract_graphics_prompts(tex_file)
+    for p in plot_placeholders:
+        name = f"plot_{p.split(':')[0].strip()}"
+        data_prompt = ...
+        plot_prompt = ...
+        client = Anthropic(
+            api_key=getenv_or_except("ANTHROPIC_API_KEY")
+        )
+        gen_data_and_plot(name, data_prompt, plot_prompt, client=client)
+    for p in image_placeholders:
+        name = f"img_{p.split(':')[0].strip()}"
 
 
 if __name__ == "__main__":
