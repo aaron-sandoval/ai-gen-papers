@@ -1,9 +1,16 @@
 from pathlib import Path
+from anthropic import Anthropic
 
+import get_keys
 from gfx.gen_graphics import gen_graphics_from_tex
+from gen_paper_text import gen_paper_text
 
 
-gfx_files = gen_graphics_from_tex(Path("tex")/"generated_paper_with_ref7.tex")
+def gen_paper(user_prompt: str) -> Path:
+    client = Anthropic(api_key=get_keys.get_anthropic_key())
+    tex_file = gen_paper_text(user_prompt, client)
+    # gfx_files = gen_graphics_from_tex(Path("tex")/"generated_paper_with_ref7.tex")
+    return Path(tex_file)
 
 # extract_graphics_prompts(Path("tex")/"generated_paper_with_ref7.tex")
 
@@ -24,3 +31,6 @@ gfx_files = gen_graphics_from_tex(Path("tex")/"generated_paper_with_ref7.tex")
 #     aspect_ratio="16:9",
 #     output_format="png"
 # )
+
+if __name__ == "__main__":
+    gen_paper("LLM safety")

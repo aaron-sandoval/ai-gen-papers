@@ -2,7 +2,6 @@ from anthropic import Anthropic
 from typing import Literal
 import warnings
 import itertools
-import os
 import sys
 import io
 from pathlib import Path
@@ -11,14 +10,7 @@ import requests
 import re
 from importlib import reload, import_module
 
-# import plot_funcs
-
-def getenv_or_except(key: str) -> str:
-    val = os.getenv(key)
-    if val is None:
-        raise KeyError(f"'{key}' not found in OS environment variables.")
-    return val
-
+from generate_tex.get_keys import getenv_or_except
 
 def compile_msg_history(prompts: list[str], responses: list[str]) -> list[dict[str, str]]:
     """ Transforms lists of messages into a message history usable by the Anthropic API as the `messages` parameter. """
