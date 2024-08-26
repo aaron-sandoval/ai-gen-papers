@@ -40,13 +40,13 @@ def main():
     #     st.write("Paper generation process initiated...")
 
     # # Add a download button for the PDF file
-    # def download_pdf(file_path):
-    #     with open(file_path, "rb") as f:
-    #         base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-    #     href = f'<a href="data:application/pdf;base64,{base64_pdf}" download="pdf-test.pdf">Download PDF</a>'
-    #     st.markdown(href, unsafe_allow_html=True)
+    def download_pdf(file_path):
+        with open(file_path, "rb") as f:
+            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+        href = f'<a href="data:application/pdf;base64,{base64_pdf}" download="pdf-test.pdf">Download AI-Generated Paper</a>'
+        st.markdown(href, unsafe_allow_html=True)
 
-    # download_pdf("Front_End/pdf-test.pdf")
+    download_pdf(Path("tex")/"with_figs"/"generated_paper_with_ref7_figs.pdf")
 
     # st.markdown(
     #     """
@@ -69,24 +69,24 @@ def main():
     # st.write("Here goes your normal Streamlit app...")
     # st.button("Click me")
 
-    def displayPDF(file):
-        # Opening file from file path
-        with open(file, "rb") as f:
-            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+    # def displayPDF(file):
+    #     # Opening file from file path
+    #     with open(file, "rb") as f:
+    #         base64_pdf = base64.b64encode(f.read()).decode('utf-8')
 
-        # Embedding PDF in HTML
-        pdf_display =  f"""<embed
-        class="pdfobject"
-        type="application/pdf"
-        title="Embedded PDF"
-        src="data:application/pdf;base64,{base64_pdf}"
-        style="overflow: auto; width: 100%; height: 300%;">"""
+    #     # Embedding PDF in HTML
+    #     pdf_display =  f"""<embed
+    #     class="pdfobject"
+    #     type="application/pdf"
+    #     title="Embedded PDF"
+    #     src="data:application/pdf;base64,{base64_pdf}"
+    #     style="overflow: auto; width: 100%; height: 300%;">"""
 
-        # Displaying File
-        st.markdown(pdf_display, unsafe_allow_html=True)
+    #     # Displaying File
+    #     st.markdown(pdf_display, unsafe_allow_html=True)
 
-    # Display the PDF on the landing page
-    displayPDF(Path("tex")/"with_figs"/"generated_paper_with_ref7_figs.pdf")
+    # # Display the PDF on the landing page
+    # displayPDF(Path("tex")/"with_figs"/"generated_paper_with_ref7_figs.pdf")
 
 if __name__ == "__main__":
     main()
