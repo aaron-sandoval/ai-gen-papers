@@ -38,6 +38,15 @@ if user_input:
 if st.button("Generate Paper"):
     st.write("Paper generation process initiated...")
 
+# Add a download button for the PDF file
+def download_pdf(file_path):
+    with open(file_path, "rb") as f:
+        base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+    href = f'<a href="data:application/pdf;base64,{base64_pdf}" download="pdf-test.pdf">Download PDF</a>'
+    st.markdown(href, unsafe_allow_html=True)
+
+download_pdf("Front-End/pdf-test.pdf")
+
 st.markdown(
     """
     <style>
