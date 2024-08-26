@@ -18,7 +18,7 @@ def main():
     # st.sidebar.button("Generate Paper", key="generate_paper_button")
 
     # Add a header
-    st.header("Introduction")
+    # st.header("Introduction")
 
     # Add some text
     st.write(
@@ -31,7 +31,7 @@ def main():
         )
 
     # Add an image to the page
-    st.image(str(Path("Front_End")/"writing.jpg"), caption="research papers", use_column_width=True)
+    st.image(str(Path("Front_End")/"writing.jpg"), width=300)
 
     # Add an input button
     # user_input = st.text_input("Enter your question:")
@@ -48,7 +48,7 @@ def main():
     def download_pdf(file_path):
         with open(file_path, "rb") as f:
             base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-        href = f'<a href="data:application/pdf;base64,{base64_pdf}" download="DLCRec: A Task-Decomposed Approach for Controllable Diversity in LLM-Based Recommender Systems.pdf">Download AI-Generated Paper</a>'
+        href = f'<a href="data:application/pdf;base64,{base64_pdf}" download="DLCRec: A Task-Decomposed Approach for Controllable Diversity in LLM-Based Recommender Systems.pdf">Check out our AI-Generated Paper</a>'
         st.markdown(href, unsafe_allow_html=True)
 
     download_pdf(Path("tex")/"with_figs"/"generated_paper_with_ref7_figs.pdf")
