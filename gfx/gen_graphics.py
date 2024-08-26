@@ -210,6 +210,29 @@ def gen_graphics_from_tex(
     return gfx_files
 
 
+def insert_graphics(tex_file: Path | str, gfx_files: list[Path]) -> Path:
+    """Inserts the graphics into the tex file and writes a new copy"""
+    with open(tex_file, "r") as f:
+        tex = f.read()
+    tex_figure_strs = r"""
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.5\linewidth]{""","""}
+        \caption{}
+        \label{fig:Geometry}
+    \end{figure}
+    """
+    for g in gfx_files:
+        serial = re.match(r"[0-9]+", g.stem)
+        img_pattern = r'\[IMAGE PLACEHOLDER '+str(serial)+'[^\]]*\]'
+        tex = re.sub(img_pattern, tex_figure_strs[0] + str(g) + tex_figure_strs[1], tex)
+    
+    file_out = tex_file.parent/(tex_file.stem+"_figs.tex")
+    with open(file_out, "w") as f:
+        f.write(tex)
+    return file_out
+
+
 if __name__ == "__main__":
     gen_data_and_plot(
         "Heights",

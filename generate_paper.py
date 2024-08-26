@@ -1,15 +1,19 @@
 from pathlib import Path
 from anthropic import Anthropic
 
-import get_keys
+from generate_tex import get_keys, gen_paper_text
 from gfx import gen_graphics
-from gen_paper_text import gen_paper_text
 
 
-def gen_paper(user_prompt: str) -> Path:
+def gen_paper(user_prompt: str | None = None, tex_file: Path | None = None, gfx_files: list[Path] | None = None) -> Path:
     client = Anthropic(api_key=get_keys.get_anthropic_key())
-    tex_file = gen_paper_text(user_prompt, client)
-    # gfx_files = gen_graphics.gen_graphics_from_tex(Path("tex")/"generated_paper_with_ref7.tex")
+    if tex_file is None:
+        if user_prompt is None:
+            raise ValueError("Either user-prompt or tex_file is required")
+        tex_file = gen_paper_text.gen_paper_text(user_prompt, client)
+    if gfx_files is None:
+        gfx_files = gen_graphics.gen_graphics_from_tex(Path("tex")/"generated_paper_with_ref7.tex")
+    tex_file_w_figs = gen_graphics.insert_graphics(tex_file, gfx_files)
     return Path(tex_file)
 
 # extract_graphics_prompts(Path("tex")/"generated_paper_with_ref7.tex")
@@ -33,4 +37,6 @@ def gen_paper(user_prompt: str) -> Path:
 # )
 
 if __name__ == "__main__":
-    gen_paper("LLM safety")
+    gfx_path = Path("gfx")/"data"
+    # gen_paper("LLM safety")
+    gen_paper(tex_file=Path("tex")/"generated_paper_with_ref7.tex", gfx_files=[gfx_path/"IMG_1.png", gfx_path/"IMG_2.png"])
