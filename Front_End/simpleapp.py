@@ -26,7 +26,7 @@ def main():
     """)
 
     # Add an image to the page
-    st.image(str(Path("Front-End")/"writing.jpg"), caption="research papers", use_column_width=True)
+    st.image(str(Path("Front_End")/"writing.jpg"), caption="research papers", use_column_width=True)
 
     # Add an input button
     user_input = st.text_input("Enter your question:")
@@ -46,7 +46,7 @@ def main():
         href = f'<a href="data:application/pdf;base64,{base64_pdf}" download="pdf-test.pdf">Download PDF</a>'
         st.markdown(href, unsafe_allow_html=True)
 
-    download_pdf("Front-End/pdf-test.pdf")
+    download_pdf("Front_End/pdf-test.pdf")
 
     st.markdown(
         """
@@ -81,7 +81,7 @@ def main():
         st.markdown(pdf_display, unsafe_allow_html=True)
 
     # Display the PDF on the landing page
-    displayPDF("Front-End/pdf-test.pdf")
+    displayPDF("Front_End/pdf-test.pdf")
 
 if __name__ == "__main__":
     main()
