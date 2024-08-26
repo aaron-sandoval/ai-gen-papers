@@ -10,8 +10,8 @@ def main():
                     layout="centered")
 
     # Set the title and subtitle of the landing page
-    st.title("AI Generated Papers")
-    st.subheader("Automating the creation of academic papers with AI")
+    st.title("AI-Generated Academic Disinformation")
+    st.subheader("Automating disinformation in false academic papers with AI")
 
     # st.sidebar.title("Navigation")
     # st.sidebar.button("Home", key="home_button")
