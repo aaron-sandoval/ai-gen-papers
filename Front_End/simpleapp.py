@@ -11,7 +11,7 @@ def main():
 
     # Set the title and subtitle of the landing page
     st.title("AI-Generated Academic Disinformation")
-    st.subheader("Automating the generation of false resesarch papers with AI")
+    st.subheader("Automating the generation of false research papers with AI")
 
     # st.sidebar.title("Navigation")
     # st.sidebar.button("Home", key="home_button")
