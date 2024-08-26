@@ -21,9 +21,14 @@ def main():
     st.header("Introduction")
 
     # Add some text
-    st.write("""
-    Welcome to our AI-powered platform, where cutting-edge technology meets scientific research to automatically generate comprehensive and insightful academic papers.
-    """)
+    st.write(
+        """
+        As the power of generative AI grows, so does the accessibility of producing misinformation. 
+        Of particular danger is misinformation posing as a reliable source of information, such as an academic paper. 
+        We demonstrate that AI can cheaply generate fake research papers difficult to distinguish by laypeople upon a cursory review. 
+        Such documents could be used to support more broadly-targeted misinformation sources as reputable-looking citations, providing another barrier to distinguishing it as a false source.
+        """
+        )
 
     # Add an image to the page
     st.image(str(Path("Front_End")/"writing.jpg"), caption="research papers", use_column_width=True)
@@ -43,7 +48,7 @@ def main():
     def download_pdf(file_path):
         with open(file_path, "rb") as f:
             base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-        href = f'<a href="data:application/pdf;base64,{base64_pdf}" download="pdf-test.pdf">Download AI-Generated Paper</a>'
+        href = f'<a href="data:application/pdf;base64,{base64_pdf}" download="DLCRec: A Task-Decomposed Approach for Controllable Diversity in LLM-Based Recommender Systems.pdf">Download AI-Generated Paper</a>'
         st.markdown(href, unsafe_allow_html=True)
 
     download_pdf(Path("tex")/"with_figs"/"generated_paper_with_ref7_figs.pdf")
